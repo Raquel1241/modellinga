@@ -6,7 +6,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
-traindat = read.csv("/Users/tyrenkoning/Desktop/University/Modelling-2A/Battery_train.csv")
+traindat = read.csv("./Battery_train.csv")
 traindat_new = gather(traindat, variable, value, -Cycle)
 
 ggplot(data = traindat_new, aes(x = Cycle, y = value, group = variable)) +
@@ -25,3 +25,4 @@ ggplot(data = traindat_new, aes(x = Cycle, y = value, group = variable)) +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_line(colour = "Black"))
+
