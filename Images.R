@@ -6,8 +6,9 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
+#traindat=read.csv("C:/Users/sofia/OneDrive/Random/GitHub/modellinga/Battery_train.csv")
 #traindat = read.csv("./Battery_train.csv")
-traindat = read.csv("/Users/tyrenkoning/Documents/GitHub/modellinga/Battery_train.csv")
+#traindat = read.csv("/Users/tyrenkoning/Documents/GitHub/modellinga/Battery_train.csv")
 traindat_new = gather(traindat, variable, value, -Cycle)
 
 ggplot(data = traindat_new, aes(x = Cycle, y = value, group = variable)) +
