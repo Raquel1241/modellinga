@@ -1,7 +1,7 @@
 library(ggplot2)
 
 traindata = read.csv("./Data/Battery_train.csv")
-df <- traindata[,1:2] # take only first battery
+df <- traindata[,1:3] # take only first battery
 
 # fit polynomial regression models up to degree 5
 fit1 <- lm(df$NO.1~df$Cycle)
