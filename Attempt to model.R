@@ -79,7 +79,7 @@ plotters2=data_frame(y, N2_new, C2_new)
 ggplot(data = plotters2, aes(x = C2_new, y = y)) +
   xlab("t (cycles)") +
   ylab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
-  ggtitle("Figure 2: Model of Battery 2 capacity degradation data (training)") +
+  ggtitle("Figure 3: Model of Battery 2 capacity degradation data (training)") +
   geom_line() +
   geom_hline(yintercept=0.88, 
              linetype="dashed", 
@@ -96,7 +96,7 @@ ggplot(data = plotters2, aes(x = C2_new, y = y)) +
 ggplot(data = plotters, aes(x = traindat$Cycle, y = traindat$NO.2)) +
   xlab("t (cycles)") +
   ylab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
-  ggtitle("Figure 1: Battery 2 capacity degradation data (training)") +
+  ggtitle("Figure 4: Battery 2 capacity degradation data (training)") +
   geom_line() +
   geom_hline(yintercept=0.88, 
              linetype="dashed", 
@@ -124,7 +124,7 @@ plotters=data_frame(y, traindat_new$value, traindat_new$Cycle)
 ggplot(data = plotters, aes(x = traindat_new$Cycle, y = y)) +
   xlab("t (cycles)") +
   ylab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
-  ggtitle("Figure 3: Model of battery capacity degradation data (training)") +
+  ggtitle("Figure 5: Model of battery capacity degradation data (training)") +
   geom_line() +
   geom_hline(yintercept=0.88, 
              linetype="dashed", 
@@ -163,7 +163,7 @@ plotters=data_frame(y, bigtraindata$bigvector, bigtraindata$bigveccyc)
 ggplot(data = plotters, aes(x = bigtraindata$bigveccyc, y = y)) +
   xlab("t (cycles)") +
   ylab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
-  ggtitle("Figure 4: Second Model of battery capacity degradation data (training)") +
+  ggtitle("Figure 6: Second Model of battery capacity degradation data (training)") +
   geom_line() +
   geom_hline(yintercept=0.88, 
              linetype="dashed", 
