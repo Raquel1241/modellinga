@@ -30,7 +30,7 @@ ggplot(data = traindat_new, aes(x = Cycle, y = value, group = variable)) +
         axis.line = element_line(colour = "Black"))
 
 
-#Modelling Battery
+#Modelling Battery 1
 
 secord=(traindat$Cycle)**2
 thirord=(traindat$Cycle)**3
@@ -56,4 +56,40 @@ ggplot(data = plotters, aes(x = traindat$Cycle, y = traindat$NO.1)) +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_line(colour = "Black"))
+
+
+
+#Modelling All Batteries
+
+secord=(traindat_new$Cycle)**2
+thirord=(traindat_new$Cycle)**3
+forord=(traindat_new$Cycle)**4
+
+lmres=lm(traindat_new$value~traindat_new$Cycle+secord+thirord+forord, data=traindat_new)
+y=coefficients(lmres)[2]*traindat_new$Cycle+coef(lmres)[1]+coef(lmres)[3]*secord+coef(lmres)[4]*thirord+coef(lmres)[5]*forord
+plotters=data_frame(y, traindat_new$value, traindat_new$Cycle)
+
+ggplot(data = plotters, aes(x = traindat_new$Cycle, y = y)) +
+  xlab("t (cycles)") +
+  ylab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
+  ggtitle("Figure 3: Model of battery capacity degradation data (training)") +
+  geom_line() +
+  geom_hline(yintercept=0.88, 
+             linetype="dashed", 
+             color = "red", 
+             linewidth=0.5) +
+  annotate("text", x=1900, y=0.87, label= "Threshold: 0.88", colour = "red", size = 3) +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 12), 
+        panel.border = element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "Black"))
+  
+  
+
+
+
+
+
 
