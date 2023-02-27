@@ -6,7 +6,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
-<<<<<<< Updated upstream
+
 traindat=read.csv("C:/Users/sofia/OneDrive/Random/GitHub/modellinga/Data/Battery_train.csv")
 #traindat = read.csv("./Data/Battery_train.csv")
 #traindat = read.csv("/Users/tyrenkoning/Documents/GitHub/modellinga/Battery_train.csv")
@@ -29,11 +29,6 @@ ggplot(data = traindat_new, aes(x = Cycle, y = value, group = variable)) +
         panel.grid.minor = element_blank(), 
         axis.line = element_line(colour = "Black"))
 
-
-
-
-=======
->>>>>>> Stashed changes
 
 #Modelling Battery
 
