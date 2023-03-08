@@ -7,7 +7,8 @@ traindat$one_thirdRUL = (traindat$RUL)^(1/3)
 predict = data.frame(Capacity = seq(0.88, 1.1, 0.001))
 
 #Linear Regression 1st order
-{lm1 = lm(RUL~Capacity, data = traindat)  #Create a linear regression with two variables
+{
+lm1 = lm(RUL~Capacity, data = traindat)  #Create a linear regression with two variables
 summary(lm1) #Review the results
 acf(lm1$residuals, type = "correlation") #Test for autocorrelation, shows why lin. reg. not allowed
 predict$lm1 = predict(lm1, new = predict)
@@ -24,7 +25,8 @@ ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_blank()) +
-  geom_line(data = predict, aes(x = Capacity, y = lm1), color = 'Red')}
+  geom_line(data = predict, aes(x = Capacity, y = lm1), color = 'Red')
+}
 
 #Linear Regression 2nd order
 {lm2 = lm(RUL~Capacity + I(Capacity^2), data = traindat) 
