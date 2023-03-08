@@ -1,13 +1,13 @@
 library(reshape2)
 library(ggplot2)
 
-
 traindat = read.csv("./Data/Traindatlong.csv")
 traindat$sqrtRUL = sqrt(traindat$RUL)
 traindat$one_thirdRUL = (traindat$RUL)^(1/3)
 
 testdata = read.csv("./Data/Battery_test.csv")
 
+# Get actual RUL of testdata
 RULdata <- data.frame(testdata$Cycle) # initalize data
 for (i in 1:(ncol(testdata)-1)){ # loop over each battery
   c = c(seq(sum(!is.na(testdata[i+1])), sum(!is.na(testdata[i+1]))-(nrow(testdata)-1), -1))
@@ -20,6 +20,8 @@ for (i in 1:(ncol(testdata)-1)){ # loop over each battery
 RULdata_long <- melt(RULdata, id = "testdata.Cycle") # long format
 testdata_long <- melt(testdata, id = "Cycle")
 testdata_long$RUL <- RULdata_long$value # add RULdata to testdata
+#testdata_long$sqrtRUL = sqrt(testdata_long$RUL)
+#testdata_long$one_thirdRUL = (testdata_long$RUL)^(1/3)
 colnames(testdata_long)[2] <- "Battery" # change column names
 colnames(testdata_long)[3] <- "Capacity"
 
@@ -37,30 +39,91 @@ ggplot(data = testdata_long, aes(x = Capacity, y = RUL, group = Battery)) +
         panel.grid.minor = element_blank(), 
         axis.line = element_blank())
 
-# Capacity sequence
-predict = data.frame(Capacity = seq(0.88, 1.1, by = (1.1-0.88)/(nrow(testdata)-1)))
-
-# Fit linear models
+# Fit Linear models
+predict = data.frame(Capacity = testdata_long$Capacity) # DF containing prediction for RUL
+{
 #1st ord. 
-lm1 = lm(RUL~Capacity, data = traindat)  #Create a linear regression with two variables
-predict$lm1 = predict(lm1, new = predict[1])
-predict$lm1[predict$lm1 < 0] = 0
+lm1 = lm(RUL~Capacity, data = traindat)  # Create a linear regression with two variables
+predict$lm1 = predict(lm1, new = testdata_long)
 
-# Calculate MSE for each method and for each battery
-MSE = data.frame(matrix(ncol = ncol(testdata)-1, nrow = 0)) # initialize MSE
-colnames(MSE) <- paste0("NO.", seq(1,ncol(testdata)-1)) # change column names
+#1st ord. sqrt
+lm1sqrt = lm(sqrtRUL~Capacity, data = traindat)
+predict$lm1sqrt = predict(lm1sqrt, new = testdata_long)
 
-for (i in 1:(ncol(RULdata)-1)){ # loop over batteries
-  val = mean((RULdata[,i+1] - rev(predict$lm1))^2) # calculate MSE
-  MSE[1,i] <- val # Append new value
+#1st ord. 1/3
+lm1third = lm(one_thirdRUL~Capacity, data = traindat)
+predict$lm1third = predict(lm1third, new = testdata_long)
+
+#2nd ord.
+lm2 = lm(RUL~Capacity + I(Capacity^2), data = traindat) 
+predict$lm2 = predict(lm2, new = testdata_long)
+
+#2nd ord. sqrt
+lm2sqrt = lm(sqrtRUL~Capacity + I(Capacity^2), data = traindat)
+predict$lm2sqrt = predict(lm2sqrt, new = testdata_long) 
+
+#2nd ord. 1/3
+lm2third = lm(one_thirdRUL~Capacity + I(Capacity^2), data = traindat) 
+predict$lm2third = predict(lm2third, new = testdata_long)
+
+#3rd ord.
+lm3 = lm(RUL~Capacity + I(Capacity^2) + I(Capacity^3), data = traindat) 
+predict$lm3 = predict(lm3, new = testdata_long)
+
+#3rd ord. sqrt
+lm3sqrt = lm(sqrtRUL~Capacity + I(Capacity^2) + I(Capacity^3), data = traindat) 
+predict$lm3sqrt = predict(lm3sqrt, new = testdata_long)
+
+#3rd ord. 1/3
+lm3third = lm(one_thirdRUL~Capacity + I(Capacity^2) + I(Capacity^3), data = traindat)
+predict$lm3third = predict(lm3third, new = testdata_long)
+
+#4th ord.
+lm4 = lm(RUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4), data = traindat) 
+predict$lm4 = predict(lm4, new = testdata_long)
+
+#4th ord. sqrt
+lm4sqrt = lm(sqrtRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4), data = traindat) 
+predict$lm4sqrt = predict(lm4sqrt, new = testdata_long)
+
+#4th ord. 1/3
+lm4third = lm(one_thirdRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4), data = traindat) 
+predict$lm4third = predict(lm4third, new = testdata_long)
+
+#5th ord.
+lm5 = lm(RUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4) + I(Capacity^5), data = traindat)
+predict$lm5 = predict(lm5, new = testdata_long)
+
+#5th ord. sqrt
+lm5sqrt = lm(sqrtRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4) + I(Capacity^5), data = traindat)
+predict$lm5sqrt = predict(lm5sqrt, new = testdata_long)
+
+#5th ord. 1/3
+lm5third = lm(one_thirdRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4) + I(Capacity^5), data = traindat)
+predict$lm5third = predict(lm5third, new = testdata_long)
 }
-MSE$total = rowMeans(MSE) # append total MSE of method
+predict[(predict < 0) | is.na(predict)] = 0 # set negative values and non-existing values to 0
 
-# Make scatterplot of MSE
-x <- seq(1,ncol(MSE)-1)
-plot(x, MSE[-ncol(MSE)], main="Scatterplot of MSE using a first-order linear approximation",
-     xlab="Battery No. ", ylab="MSE ", pch=19)
 
+# Calculate errors for each method
+MSE = c() # mean squared error
+MAPE = c() # mean absolute percentage error
+
+for (i in seq(2,ncol(predict),3)){ # loop over each linear fit in steps of 3
+    print(i)
+    MSE = append(MSE,mean((testdata_long$RUL - predict[,i])^2)) # calculate MSE
+    MSE = append(MSE,mean((sqrt(testdata_long$RUL) - predict[,i+1])^2)) # sqrt method
+    MSE = append(MSE,mean(((testdata_long$RUL)^(1/3) - predict[,i+2])^2)) # inverse cube
+    
+    MAPE = append(MAPE,mean(abs((testdata_long$RUL-predict[,i])/testdata_long$RUL)) * 100)
+    MAPE = append(MAPE,mean(abs((sqrt(testdata_long$RUL)-predict[,i+1])/sqrt(testdata_long$RUL))) * 100)
+    MAPE = append(MAPE,mean(abs(((testdata_long$RUL)^(1/3)-predict[,i+2])/((testdata_long$RUL)^(1/3)))) * 100)
+
+}
+
+error <- data.frame(MSE = MSE, MAPE = MAPE)
+
+mean(abs((data$actual-data$forecast)/data$actual)) * 100
 
 ggplot() +
   xlab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
@@ -73,52 +136,43 @@ ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_blank()) +
-  geom_line(data = predict, aes(x = Capacity, y = lm1), color = 'Red') + 
-  annotate("text", x=0.91, y=500, label= "Predicted RUL", colour = "red", size = 3.1)
-  
-  
-#1st ord. sqrt
-lm1sqrt = lm(sqrtRUL~Capacity, data = traindat)
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm1, color = 'red') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm2, color = 'blue') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm3, color = 'green') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm4, color = 'yellow') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm5, color = 'orange') ) +
+  labs(colour = "Linear model", blue ="First order")
 
-#1st ord. 1/3
-lm1third = lm(one_thirdRUL~Capacity, data = traindat)
+ggplot() +
+  xlab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
+  ylab(bquote("RUL" ~ C["t,i"] ~ "(Cycles)")) +
+  ggtitle("Predicted RUL vs. actual RUL") +
+  geom_path(data = testdata_long, aes(x = Capacity, y = sqrt(RUL), group = Battery), size=0.5) +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 12), 
+        panel.border = element_rect(colour = "black", fill=NA, size=0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_blank()) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm1sqrt, color = 'red') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm2sqrt, color = 'blue') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm3sqrt, color = 'green') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm4sqrt, color = 'yellow') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm5sqrt, color = 'orange') )
 
-#2nd ord.
-lm2 = lm(RUL~Capacity + I(Capacity^2), data = traindat) 
-
-#2nd ord. sqrt
-lm2sqrt = lm(sqrtRUL~Capacity + I(Capacity^2), data = traindat) 
-
-#2nd ord. 1/3
-lm2third = lm(one_thirdRUL~Capacity + I(Capacity^2), data = traindat) 
-
-#3rd ord.
-lm3 = lm(RUL~Capacity + I(Capacity^2) + I(Capacity^3), data = traindat) 
-
-#3rd ord. sqrt
-lm3sqrt = lm(sqrtRUL~Capacity + I(Capacity^2) + I(Capacity^3), data = traindat) 
-
-#3rd ord. 1/3
-lm3third = lm(one_thirdRUL~Capacity + I(Capacity^2) + I(Capacity^3), data = traindat) 
-
-#4th ord.
-lm4 = lm(RUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4), data = traindat) 
-
-#4th ord. sqrt
-lm4sqrt = lm(sqrtRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4), data = traindat) 
-
-#4th ord. 1/3
-lm4third = lm(one_thirdRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4), data = traindat) 
-
-#5th ord.
-lm5 = lm(RUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4) + I(Capacity^5), data = traindat)
-
-#5th ord. sqrt
-lm5sqrt = lm(sqrtRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4) + I(Capacity^5), data = traindat)
-
-#5th ord. 1/3
-lm5third = lm(one_thirdRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4) + I(Capacity^5), data = traindat)
-
-
-
-
+ggplot() +
+  xlab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
+  ylab(bquote("RUL" ~ C["t,i"] ~ "(Cycles)")) +
+  ggtitle("Predicted RUL vs. actual RUL") +
+  geom_path(data = testdata_long, aes(x = Capacity, y = RUL^(1/3), group = Battery), size=0.5) +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 12), 
+        panel.border = element_rect(colour = "black", fill=NA, size=0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_blank()) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm1third, color = 'red') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm2third, color = 'blue') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm3third, color = 'green') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm4third, color = 'yellow') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm5third, color = 'orange') )

@@ -1,6 +1,7 @@
 install.packages('ggfortify')
 
-traindat = read.csv("/Users/tyrenkoning/Desktop/University/Modelling-2A/Traindatlong.csv")
+#traindat = read.csv("/Users/tyrenkoning/Desktop/University/Modelling-2A/Traindatlong.csv")
+traindat = read.csv("./Data/Traindatlong.csv")
 traindat$sqrtRUL = sqrt(traindat$RUL)
 traindat$one_thirdRUL = (traindat$RUL)^(1/3)
 
