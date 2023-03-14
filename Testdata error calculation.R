@@ -219,5 +219,7 @@ ggplot() +
   geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm4third, color = 'yellow') ) +
   geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm5third, color = 'orange') ) +
   labs(colour="Linear model") +
-  scale_color_manual(labels = c("Fifth order", "Fourth order","Third order", "Second order","First order"), values = c("red","blue", "green","purple","orange")) 
+  scale_color_manual(
+    labels = c("Fifth order", "Fourth order","Third order", "Second order","First order"), 
+    values = c("red","blue", "green","purple","orange")) 
   
