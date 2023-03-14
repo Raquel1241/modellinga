@@ -10,7 +10,8 @@ testdata = read.csv("./Data/Battery_test.csv")
 # Get actual RUL of testdata
 RULdata <- data.frame(testdata$Cycle) # initalize data
 for (i in 1:(ncol(testdata)-1)){ # loop over each battery
-  c = c(seq(sum(!is.na(testdata[i+1])), sum(!is.na(testdata[i+1]))-(nrow(testdata)-1), -1))
+  c = c(seq(sum(!is.na(testdata[i+1])), sum(!is.na(testdata[i+1]))-
+              (nrow(testdata)-1), -1))
   c[c<0] = 0 # remove negative values
   RULdata[ , ncol(RULdata) + 1] <- c # Append new column
   colnames(RULdata)[ncol(RULdata)] <- paste0("NO.", i)
@@ -40,10 +41,12 @@ ggplot(data = testdata_long, aes(x = Capacity, y = RUL, group = Battery)) +
         axis.line = element_blank())
 
 # Fit Linear models
-predict = data.frame(Capacity = testdata_long$Capacity) # DF containing prediction for RUL
+
+# DF containing prediction for RUL
+predict = data.frame(Capacity = testdata_long$Capacity) 
 {
 #1st ord. 
-lm1 = lm(RUL~Capacity, data = traindat)  # Create a linear regression with two variables
+lm1 = lm(RUL~Capacity, data = traindat) 
 predict$lm1 = predict(lm1, new = testdata_long)
 
 #1st ord. sqrt
@@ -75,34 +78,42 @@ lm3sqrt = lm(sqrtRUL~Capacity + I(Capacity^2) + I(Capacity^3), data = traindat)
 predict$lm3sqrt = predict(lm3sqrt, new = testdata_long)
 
 #3rd ord. 1/3
-lm3third = lm(one_thirdRUL~Capacity + I(Capacity^2) + I(Capacity^3), data = traindat)
+lm3third = lm(one_thirdRUL~Capacity + I(Capacity^2) 
+              + I(Capacity^3), data = traindat)
 predict$lm3third = predict(lm3third, new = testdata_long)
 
 #4th ord.
-lm4 = lm(RUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4), data = traindat) 
+lm4 = lm(RUL~Capacity + I(Capacity^2) + I(Capacity^3) 
+         + I(Capacity^4), data = traindat) 
 predict$lm4 = predict(lm4, new = testdata_long)
 
 #4th ord. sqrt
-lm4sqrt = lm(sqrtRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4), data = traindat) 
+lm4sqrt = lm(sqrtRUL~Capacity + I(Capacity^2) + I(Capacity^3) 
+             + I(Capacity^4), data = traindat) 
 predict$lm4sqrt = predict(lm4sqrt, new = testdata_long)
 
 #4th ord. 1/3
-lm4third = lm(one_thirdRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4), data = traindat) 
+lm4third = lm(one_thirdRUL~Capacity + I(Capacity^2) + 
+                I(Capacity^3) + I(Capacity^4), data = traindat) 
 predict$lm4third = predict(lm4third, new = testdata_long)
 
 #5th ord.
-lm5 = lm(RUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4) + I(Capacity^5), data = traindat)
+lm5 = lm(RUL~Capacity + I(Capacity^2) + I(Capacity^3) + 
+           I(Capacity^4) + I(Capacity^5), data = traindat)
 predict$lm5 = predict(lm5, new = testdata_long)
 
 #5th ord. sqrt
-lm5sqrt = lm(sqrtRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4) + I(Capacity^5), data = traindat)
+lm5sqrt = lm(sqrtRUL~Capacity + I(Capacity^2) + I(Capacity^3) + 
+               I(Capacity^4) + I(Capacity^5), data = traindat)
 predict$lm5sqrt = predict(lm5sqrt, new = testdata_long)
 
 #5th ord. 1/3
-lm5third = lm(one_thirdRUL~Capacity + I(Capacity^2) + I(Capacity^3) + I(Capacity^4) + I(Capacity^5), data = traindat)
+lm5third = lm(one_thirdRUL~Capacity + I(Capacity^2) + I(Capacity^3) + 
+                I(Capacity^4) + I(Capacity^5), data = traindat)
 predict$lm5third = predict(lm5third, new = testdata_long)
 }
-predict[(predict < 0) | is.na(predict)] = 0 # set negative values and non-existing values to 0
+# set negative values and non-existing values to 0
+predict[(predict < 0) | is.na(predict)] = 0 
 
 
 # Calculate errors for each method
@@ -110,7 +121,6 @@ MSE = c() # mean squared error
 MAPE = c() # mean absolute percentage error
 
 for (i in seq(2,ncol(predict),3)){ # loop over each linear fit in steps of 3
-    print(i)
     MSE = append(MSE,mean((testdata_long$RUL - predict[,i])^2)) # calculate MSE
     MSE = append(MSE,mean((sqrt(testdata_long$RUL) - predict[,i+1])^2)) # sqrt method
     MSE = append(MSE,mean(((testdata_long$RUL)^(1/3) - predict[,i+2])^2)) # inverse cube
@@ -145,30 +155,39 @@ ggplot() +
   xlab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
   ylab(bquote("RUL" ~ C["t,i"] ~ "(Cycles)")) +
   ggtitle("Predicted RUL vs. actual RUL") +
-  geom_path(data = testdata_long, aes(x = Capacity, y = RUL, group = Battery), size=0.5,lty=2) +
+  geom_path(data = testdata_long, 
+            aes(x = Capacity, y = RUL, group = Battery), size=0.5,lty=2) +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5, size = 12), 
-        panel.border = element_rect(colour = "black", fill=NA, size=0.5), 
+        panel.border = element_rect(colour = "black", fill=NA, linewidth=0.5), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_blank()) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm1, color = 'red'),size=1) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm2, color = 'blue'),size=1) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm3, color = 'green'),size=1) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm4, color = 'purple'),size=1) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm5, color = 'orange'),size=1) +
+  geom_line(data = predict, 
+            aes(x = testdata_long$Capacity, y = lm1, color = 'red'),linewidth=1) +
+  geom_line(data = predict, 
+            aes(x = testdata_long$Capacity, y = lm2, color = 'blue'),linewidth=1) +
+  geom_line(data = predict, 
+            aes(x = testdata_long$Capacity, y = lm3, color = 'green'),linewidth=1) +
+  geom_line(data = predict, 
+            aes(x = testdata_long$Capacity, y = lm4, color = 'purple'),linewidth=1) +
+  geom_line(data = predict, 
+            aes(x = testdata_long$Capacity, y = lm5, color = 'orange'),linewidth=1) +
   labs(colour="Linear model") +
-  scale_color_manual(labels = c("Fifth order", "Fourth order","Third order", "Second order","First order"), values = c("red","blue", "green","purple","orange")) 
+  scale_color_manual(
+    labels = c("Fifth order", "Fourth order","Third order", "Second order","First order"), 
+    values = c("red","blue", "green","purple","orange")) 
 
-# Plot fits on square 
+# Plot fits on square
 ggplot() +
   xlab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
   ylab(bquote("RUL" ~ C["t,i"] ~ "(Cycles)")) +
   ggtitle("Predicted RUL vs. actual RUL on square root of data ") +
-  geom_path(data = testdata_long, aes(x = Capacity, y = sqrt(RUL), group = Battery), size=0.5, lty=2) +
+  geom_path(data = testdata_long, 
+            aes(x = Capacity, y = sqrt(RUL), group = Battery), size=0.5, lty=2) +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5, size = 12), 
-        panel.border = element_rect(colour = "black", fill=NA, size=0.5), 
+        panel.border = element_rect(colour = "black", fill=NA, linewidth=0.5), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_blank()) +
@@ -178,7 +197,9 @@ ggplot() +
   geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm4sqrt, color = 'yellow') ) +
   geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm5sqrt, color = 'orange') ) +
   labs(colour="Linear model") +
-  scale_color_manual(labels = c("Fifth order", "Fourth order","Third order", "Second order","First order"), values = c("red","blue", "green","purple","orange")) 
+  scale_color_manual(
+    labels = c("Fifth order", "Fourth order","Third order", "Second order","First order"), 
+    values = c("red","blue", "green","purple","orange")) 
 
 
 ggplot() +
@@ -188,7 +209,7 @@ ggplot() +
   geom_path(data = testdata_long, aes(x = Capacity, y = RUL^(1/3), group = Battery), size=0.5, lty=2) +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5, size = 12), 
-        panel.border = element_rect(colour = "black", fill=NA, size=0.5), 
+        panel.border = element_rect(colour = "black", fill=NA, linewidth=0.5), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_blank()) +
