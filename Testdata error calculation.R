@@ -30,7 +30,7 @@ colnames(testdata_long)[3] <- "Capacity"
 ggplot(data = testdata_long, aes(x = Capacity, y = RUL, group = Battery)) +
   ggtitle("Capacity vs. RUL of test data ") + 
   xlab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
-  ylab(bquote("RUL" ~ C["t,i"] ~ "(Cycles)")) +
+  ylab(bquote("RUL (Cycles)")) +
   #ggtitle("Figure 2: RUL (training)") +
   geom_path(size=0.5) +
   theme_bw() + 
@@ -153,7 +153,7 @@ rownames(error)[seq(3,15,3)] <- paste0("lm", seq(1,5),"^(1/3)")
 # Plot linear fits
 ggplot() +
   xlab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
-  ylab(bquote("RUL" ~ C["t,i"] ~ "(Cycles)")) +
+  ylab(bquote("RUL (Cycles)")) +
   ggtitle("Predicted RUL vs. actual RUL") +
   geom_path(data = testdata_long, 
             aes(x = Capacity, y = RUL, group = Battery), size=0.5,lty=2) +
@@ -178,7 +178,7 @@ ggplot() +
     labels = c("Fifth order", "Fourth order","Third order", "Second order","First order"), 
     values = c("red","blue", "green","purple","orange")) 
 
-# Plot fits on square
+# Plot fits on square root
 ggplot() +
   xlab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
   ylab(bquote("RUL" ~ C["t,i"] ~ "(Cycles)")) +
@@ -202,9 +202,11 @@ ggplot() +
     values = c("red","blue", "green","purple","orange")) 
 
 
+
+# Plot fits on cube root
 ggplot() +
   xlab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
-  ylab(bquote("RUL" ~ C["t,i"] ~ "(Cycles)")) +
+  ylab(bquote("RUL (Cycles)")) +
   ggtitle("Predicted RUL vs. actual RUL of data^(1/3)") +
   geom_path(data = testdata_long, aes(x = Capacity, y = RUL^(1/3), group = Battery), size=0.5, lty=2) +
   theme_bw() + 
