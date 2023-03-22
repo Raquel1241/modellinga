@@ -1,3 +1,4 @@
+#setwd("~/GitHub/modellinga")
 # Load train and test data and linear models
 load("./Data/testdata_long.Rda")
 load("./Data/traindata_long.Rda")
@@ -33,13 +34,13 @@ calculateCost <- function(Cr,Cm,Cp,tau,t_end, RULhat, RULtrue) {
 #   cost:   total cost of inspection policy after t_end cycles, integer
   
   cost = 0
-  for (i in seq(tau,t_end,tau)){
-    newcost =  case_when(
+  for (i in seq(tau,t_end,tau)){ # calculate cost at each tau
+    newcost =  case_when( # define new cost
       RULhat[i] < tau ~ Cr + Cm,
       RULhat[i] > tau & RULtrue[i] < tau  ~ Cr + Cp + Cm,
       RULhat[i] > tau & RULtrue[i] > tau  ~ Cm,
       TRUE ~ 0)
-    cost = cost + newcost
+    cost = cost + newcost # add new cost
   }
   return(cost)
 }
