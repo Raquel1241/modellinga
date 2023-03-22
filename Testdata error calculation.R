@@ -164,15 +164,15 @@ ggplot() +
         panel.grid.minor = element_blank(), 
         axis.line = element_blank()) +
   geom_line(data = predict, 
-            aes(x = testdata_long$Capacity, y = lm1, color = 'red'),linewidth=1) +
+            aes(x = testdata_long$Capacity, y = lm1, color = 'red'),linewidth=0.5) +
   geom_line(data = predict, 
-            aes(x = testdata_long$Capacity, y = lm2, color = 'blue'),linewidth=1) +
+            aes(x = testdata_long$Capacity, y = lm2, color = 'blue'),linewidth=0.5) +
   geom_line(data = predict, 
-            aes(x = testdata_long$Capacity, y = lm3, color = 'green'),linewidth=1) +
+            aes(x = testdata_long$Capacity, y = lm3, color = 'green'),linewidth=0.5) +
   geom_line(data = predict, 
-            aes(x = testdata_long$Capacity, y = lm4, color = 'purple'),linewidth=1) +
+            aes(x = testdata_long$Capacity, y = lm4, color = 'purple'),linewidth=0.5) +
   geom_line(data = predict, 
-            aes(x = testdata_long$Capacity, y = lm5, color = 'orange'),linewidth=1) +
+            aes(x = testdata_long$Capacity, y = lm5, color = 'orange'),linewidth=0.5) +
   labs(colour="Linear model") +
   scale_color_manual(
     labels = c("Fifth order", "Fourth order","Third order", "Second order","First order"), 
@@ -182,20 +182,20 @@ ggplot() +
 ggplot() +
   xlab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
   ylab(bquote("RUL" ~ C["t,i"] ~ "(Cycles)")) +
-  ggtitle("Predicted RUL vs. actual RUL on square root of data ") +
+  ggtitle("LM fitted on square root of data") +
   geom_path(data = testdata_long, 
-            aes(x = Capacity, y = sqrt(RUL), group = Battery), size=0.5, lty=2) +
+            aes(x = Capacity, y = RUL, group = Battery), size=0.5, lty=2) +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5, size = 12), 
         panel.border = element_rect(colour = "black", fill=NA, linewidth=0.5), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_blank()) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm1sqrt, color = 'red') ) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm2sqrt, color = 'blue') ) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm3sqrt, color = 'green') ) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm4sqrt, color = 'yellow') ) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm5sqrt, color = 'orange') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm1sqrt^2, color = 'red') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm2sqrt^2, color = 'blue') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm3sqrt^2, color = 'green') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm4sqrt^2, color = 'yellow') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm5sqrt^2, color = 'orange') ) +
   labs(colour="Linear model") +
   scale_color_manual(
     labels = c("Fifth order", "Fourth order","Third order", "Second order","First order"), 
@@ -207,19 +207,19 @@ ggplot() +
 ggplot() +
   xlab(bquote("Capacity" ~ C["t,i"] ~ "(Ah)")) +
   ylab(bquote("RUL (Cycles)")) +
-  ggtitle("Predicted RUL vs. actual RUL of data^(1/3)") +
-  geom_path(data = testdata_long, aes(x = Capacity, y = RUL^(1/3), group = Battery), size=0.5, lty=2) +
+  ggtitle("LM fitted on cube root of data") +
+  geom_path(data = testdata_long, aes(x = Capacity, y = RUL, group = Battery), size=0.5, lty=2) +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5, size = 12), 
         panel.border = element_rect(colour = "black", fill=NA, linewidth=0.5), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_blank()) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm1third, color = 'red') ) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm2third, color = 'blue') ) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm3third, color = 'green') ) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm4third, color = 'yellow') ) +
-  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm5third, color = 'orange') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm1third^3, color = 'red') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm2third^3, color = 'blue') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm3third^3, color = 'green') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm4third^3, color = 'yellow') ) +
+  geom_line(data = predict, aes(x = testdata_long$Capacity, y = lm5third^3, color = 'orange') ) +
   labs(colour="Linear model") +
   scale_color_manual(
     labels = c("Fifth order", "Fourth order","Third order", "Second order","First order"), 
