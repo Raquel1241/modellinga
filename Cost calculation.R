@@ -1,37 +1,24 @@
 #setwd("~/GitHub/modellinga")
+library(dplyr)
+
 # Load train and test data and linear models
-load("./Data/testdata_long.Rda")
+load("./Data/traindata_long.Rda")
 load("./Data/traindata_long.Rda")
 load("./Data/linearmodels.RData")
 
-# Add prediction
-traindata_long$RULhat = predict(lm4, newdata = traindata_long)
-traindata_long$RULhat[(traindata_long$RULhat < 0)|is.na(traindata_long$RULhat)] = 
-  0 # set negative values to 0
-
-# Cost variables
-Cr = 3        # replacement cost
-Cm = 0.5      # maintenance cost
-Cp = 1        # penalty cost
-tau = 200     # inspection period
-t_end = 2000  # end of inspection
-
-RULhat <- traindata_long$RULhat
-RULtrue <- traindata_long$RUL
-
 # Calculate total cost of inspection policy
 calculateCost <- function(Cr,Cm,Cp,tau,t_end, RULhat, RULtrue) {
-# INPUT
-#   Cr:     replacement cost, integer
-#   Cm:     maintenance cost, integer
-#   Cp:     penalty cost, integer
-#   tau:    inspection period, integer
-#   t_end:  final inspection time, integer
-#   RULhat: vector containing predicted RUL, based on linear model
-#   RULtrue:vector containing true RUL
+  # INPUT
+  #   Cr:     replacement cost, integer
+  #   Cm:     maintenance cost, integer
+  #   Cp:     penalty cost, integer
+  #   tau:    inspection period, integer
+  #   t_end:  final inspection time, integer
+  #   RULhat: vector containing predicted RUL, based on linear model
+  #   RULtrue:vector containing true RUL
   
-# OUTPUT
-#   cost:   total cost of inspection policy after t_end cycles, integer
+  # OUTPUT
+  #   cost:   total cost of inspection policy after t_end cycles, integer
   
   cost = 0
   for (i in seq(tau,t_end,tau)){ # calculate cost at each tau
@@ -45,4 +32,35 @@ calculateCost <- function(Cr,Cm,Cp,tau,t_end, RULhat, RULtrue) {
   return(cost)
 }
 
-calculateCost(Cr,Cm,Cp,tau,t_end, RULhat, RULtrue)
+# Cost variables
+Cr = 3        # replacement cost
+Cm = 0.5      # maintenance cost
+Cp = 1        # penalty cost
+tau = 200     # inspection period
+t_end = 2000  # end of inspection
+
+# Add predictions
+{
+RULhat <- data.frame(lm1 = predict(lm1, newdata = traindata_long))
+RULhat$lm1sqrt = predict(lm1sqrt, new = traindata_long)
+RULhat$lm1third = predict(lm1third, new = traindata_long)
+RULhat$lm2 = predict(lm2, new = traindata_long)
+RULhat$lm2sqrt = predict(lm2sqrt, new = traindata_long)
+RULhat$lm2third = predict(lm2third, new = traindata_long)
+RULhat$lm3 = predict(lm3, new = traindata_long)
+RULhat$lm3sqrt = predict(lm3sqrt, new = traindata_long)
+RULhat$lm3third = predict(lm3third, new = traindata_long)
+RULhat$lm4 = predict(lm4, new = traindata_long)
+RULhat$lm4sqrt = predict(lm4sqrt, new = traindata_long)
+RULhat$lm4third = predict(lm4third, new = traindata_long)
+RULhat$lm5 = predict(lm5, new = traindata_long)
+RULhat$lm5sqrt = predict(lm5sqrt, new = traindata_long)
+RULhat$lm5third = predict(lm5third, new = traindata_long)
+}
+RULhat[(RULhat < 0)|is.na(RULhat)] = 0 # set negative values to 0
+RULtrue <- traindata_long$RUL
+
+cost = c()
+for (i in seq(1, ncol(RULhat))) { # Calculate cost of each method
+  cost = append(cost,calculateCost(Cr,Cm,Cp,tau,t_end, RULhat[,i], RULtrue))
+}
