@@ -3,7 +3,7 @@ library(dplyr)
 
 # Load train and test data and linear models
 load("./Data/traindata_long.Rda")
-load("./Data/traindata_long.Rda")
+load("./Data/testdata_long.Rda")
 load("./Data/linearmodels.RData")
 
 # Calculate total cost of inspection policy
@@ -64,3 +64,4 @@ cost = c()
 for (i in seq(1, ncol(RULhat))) { # Calculate cost of each method
   cost = append(cost,calculateCost(Cr,Cm,Cp,tau,t_end, RULhat[,i], RULtrue))
 }
+
