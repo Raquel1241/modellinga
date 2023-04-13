@@ -2,10 +2,16 @@
 library(dplyr)
 
 # Load train and test data and linear models
-load("/Users/tyrenkoning/Documents/GitHub/modellinga/Data/traindata_long.Rda")
+traindat = read.csv("/Users/tyrenkoning/Documents/GitHub/modellinga/Data/Traindatlong.csv")
 load("/Users/tyrenkoning/Documents/GitHub/modellinga/Data/testdata_long.Rda")
 load("/Users/tyrenkoning/Documents/GitHub/modellinga/Data/linearmodels.RData")
-load("/Users/tyrenkoning/Documents/GitHub/modellinga/Data/plm_precition.rda")
+load("/Users/tyrenkoning/Documents/GitHub/modellinga/Data/plm_prediction.rda")
+load("/Users/tyrenkoning/Documents/GitHub/modellinga/Data/cost100.rda")
+load("/Users/tyrenkoning/Documents/GitHub/modellinga/Data/cost200.rda")
+load("/Users/tyrenkoning/Documents/GitHub/modellinga/Data/cost350.rda")
+load("/Users/tyrenkoning/Documents/GitHub/modellinga/Data/cost500.rda")
+
+
 
 # Calculate total cost of inspection policy (Couldn't get it to work)
 calculateCost <- function(tau,t_end, RULhat, RULtrue, batt) {
@@ -119,7 +125,7 @@ t_end = 2000  # end of inspection
   RUL$lm5 = predict(lm5, new = traindat)
   RUL$lm5sqrt = (predict(lm5sqrt, new = traindat))^2
   RUL$lm5third = (predict(lm5third, new = traindat))^3
-  RUL$plm = plm_prediction$prediction
+  RUL$plm = traindat$prediction
 }
 RUL[(RUL < 0)|is.na(RUL)] = 0 # set negative values to 0
 
@@ -140,17 +146,85 @@ colnames(cost) = c("Cr_lm1", "Cr_lm1sqrt", "Cr_lm1third", "Cr_lm2",
                    "Cm_lm3third", "Cm_lm4", "Cm_lm4sqrt", "Cm_lm4third", 
                    "Cm_lm5", "Cm_lm5sqrt", "Cm_lm5third", "Cm_plm")
 
+cost100 = cost
+cost200 = cost
+cost350 = cost
+cost500 = cost
+rm(cost)
+
+tau = 100
 for (j in seq(1, 16)){
   for (i in seq(1, 1000)) { # Calculate for lm1 1000 times
     s = sample.int(79,1)
     res = calculateCost(tau,t_end, RUL[,c(2,j+3)],RUL[,c(2,3)],s)
-    cost[i,j] = res[1]
-    cost[i,j+16] = res[2]
-    cost[i,j+32] = res[3]
+    cost100[i,j] = res[1]
+    cost100[i,j+16] = res[2]
+    cost100[i,j+32] = res[3]
   }
 }
 
-costs_mean = colMeans(cost)
+tau = 200
+for (j in seq(1, 16)){
+  for (i in seq(1, 1000)) { # Calculate for lm1 1000 times
+    s = sample.int(79,1)
+    res = calculateCost(tau,t_end, RUL[,c(2,j+3)],RUL[,c(2,3)],s)
+    cost200[i,j] = res[1]
+    cost200[i,j+16] = res[2]
+    cost200[i,j+32] = res[3]
+  }
+}
+
+tau = 350
+for (j in seq(1, 16)){
+  for (i in seq(1, 1000)) { # Calculate for lm1 1000 times
+    s = sample.int(79,1)
+    res = calculateCost(tau,t_end, RUL[,c(2,j+3)],RUL[,c(2,3)],s)
+    cost350[i,j] = res[1]
+    cost350[i,j+16] = res[2]
+    cost350[i,j+32] = res[3]
+  }
+}
+
+tau = 500
+for (j in seq(1, 16)){
+  for (i in seq(1, 1000)) { # Calculate for lm1 1000 times
+    s = sample.int(79,1)
+    res = calculateCost(tau,t_end, RUL[,c(2,j+3)],RUL[,c(2,3)],s)
+    cost500[i,j] = res[1]
+    cost500[i,j+16] = res[2]
+    cost500[i,j+32] = res[3]
+  }
+}
+
+costs100_mean = colMeans(cost100)
+costs100visualized = c(1:16)
+for (i in seq(1,16)){
+  costs100visualized[i] = 3*costs100_mean[i]+costs100_mean[i+16]+0.5*costs100_mean[i+32]
+}
+
+costs200_mean = colMeans(cost200)
+cost200visualized = cost200
+for (i in seq(1,16)){
+  cost200visualized[i] = 3*cost200[i]+cost200[i+16]+0.5*cost200[i+32]
+}
+cost200visualized = cost200visualized[,1:16]
+colnames(cost200visualized) = c("lm1", "lm1sqrt", "lm1third", "lm2", 
+                                "lm2sqrt", "lm2third", "lm3", "lm3sqrt", 
+                                "lm3third", "lm4", "lm4sqrt", "lm4third", 
+                                "lm5", "lm5sqrt", "lm5third", "plm")
+pdf("Boxplot200.pdf")
+ggplot(data = melt(cost200visualized), aes(x=variable, y=value), width=1200, height=600) +
+  geom_boxplot() +
+  xlab("Regression model") +
+  ylab("") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 12), 
+        panel.border = element_rect(colour = "black", fill=NA, size=0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_blank()) +
+  coord_fixed(ratio=0.1)
+dev.off()
 
 
 
@@ -159,17 +233,133 @@ costs_mean = colMeans(cost)
 
 
 
+costs350_mean = colMeans(cost350)
+cost350visualized = cost350
+for (i in seq(1,16)){
+  cost350visualized[i] = 3*cost350[i]+cost350[i+16]+0.5*cost350[i+32]
+}
+cost350visualized = cost350visualized[,1:16]
+colnames(cost350visualized) = c("lm1", "lm1sqrt", "lm1third", "lm2", 
+                                "lm2sqrt", "lm2third", "lm3", "lm3sqrt", 
+                                "lm3third", "lm4", "lm4sqrt", "lm4third", 
+                                "lm5", "lm5sqrt", "lm5third", "plm")
+
+costs500_mean = colMeans(cost500)
+cost500visualized = cost500
+for (i in seq(1,16)){
+  cost500visualized[i] = 3*cost500[i]+cost500[i+16]+0.5*cost500[i+32]
+}
+cost500visualized = cost500visualized[,1:16]
+colnames(cost500visualized) = c("lm1", "lm1sqrt", "lm1third", "lm2", 
+                                "lm2sqrt", "lm2third", "lm3", "lm3sqrt", 
+                                "lm3third", "lm4", "lm4sqrt", "lm4third", 
+                                "lm5", "lm5sqrt", "lm5third", "plm")
+
+costs100_sd = sapply(cost100, sd)
+costs200_sd = sapply(cost100, sd)
+costs350_sd = sapply(cost100, sd)
+costs500_sd = sapply(cost100, sd)
+
+library(plotly)
+#The plm cost - lm1 cost visualized on [0,10] x [0,10] (<0 means plm is cheaper, >0 means lm1 is cheaper)
+#Cr is the x-axis, Cp is the y-axis, cost difference is the z-axis
+cost_visual = data.frame(matrix(nrow = 1000,
+                                ncol = 1000))
+for (j in seq(1, 1000)){
+  for (i in seq(1, 1000)) {
+    cost_visual[i,j] = 0.01*(i*(3.899-3.868) + j*(1.798-2.436))
+  }
+}
+
+cost_visual = as.matrix(cost_visual)
+
+fig <- plot_ly(x=1:10, y=1:10, z = ~cost_visual, 
+               type = "contour",
+               colors = 'Pastel2')
+fig
+
+interval = traindat[,c(1,2,4)]
+pred = as.data.frame((predict(lm1sqrt, new = traindat, interval = 'prediction'))^2)
+interval$lower = pred$lwr
+interval$lm1 = pred$fit
+interval$upper = pred$upr
+interval[(interval < 0)|is.na(interval)] = 0 # set negative values to 0
+
+
+cost_int = data.frame(matrix(nrow = 1000,
+                         ncol = 3))
+colnames(cost_int) = c("Cr_lm1sqrt", "Cp_lm1sqrt", "Cm_lm1sqrt")
+
+calculateCost2 <- function(t_end, upper, RULhat, RULtrue, batt) {
+  cost = c(0,0,0)
+  cycle = 350
+  tot = 350
+  while (tot <= 350){
+      cycle = upper[cycle,]
+      r = sample.int(79,1)
+      if (subset(RULhat, Battnum == batt)[cycle,2] < tau){
+        Cr_new = 1
+        Cp_new = 0
+        Cm_new = 1
+        batt = r
+        cycle = tau
+      }
+      else if (subset(RULhat, Battnum == batt)[cycle,2] > tau & subset(RULtrue, Battnum == batt)[cycle,2] < tau){
+        Cr_new = 1
+        Cp_new = 1
+        Cm_new = 1
+        batt = r
+        cycle = tau
+      }
+      else if (subset(RULhat, Battnum == batt)[cycle,2] > tau & subset(RULtrue, Battnum == batt)[cycle,2] > tau){
+        Cr_new = 0
+        Cp_new = 0
+        Cm_new = 1
+        cycle = cycle + tau
+      }
+      cost[1] = cost[1] + Cr_new # add new cost
+      cost[2] = cost[2] + Cp_new
+      cost[3] = cost[3] + Cm_new
+  }
+  return(cost)
+}
+
+for (i in seq(1, 1000)) { # Calculate for lm1 1000 times
+  s = sample.int(79,1)
+  res = calculateCost(tau,t_end, RUL[,c(2,j+3)],RUL[,c(2,3)],s)
+  cost100[i,j] = res[1]
+  cost100[i,j+16] = res[2]
+  cost100[i,j+32] = res[3]
+}
+
+for (i in seq(1,16)){
+  
+}
+
+colnames(cost200visualized) = c("lm1", "lm1sqrt", "lm1third", "lm2", 
+                                "lm2sqrt", "lm2third", "lm3", "lm3sqrt", 
+                                "lm3third", "lm4", "sqrt(4th linreg.)", "lm4third", 
+                                "5th linreg.", "lm5sqrt", "lm5third", "Panel regression")
+
+pdf("Boxplot200video.pdf")
+boxplot(cost200visualized[c(16,11,13)],
+        ylab = "Average cost")
+dev.off()
 
 
 
 
 
+boxpldat = data.frame('100' = cost100visualized$plm, 
+                      '200' = cost200visualized$`Panel regression`, 
+                      '350' = cost350visualized$plm, 
+                      '500' = cost500visualized$plm)
 
-
-
-
-
-
+pdf("boxplot_plm.pdf")
+boxplot(boxpldat,
+        xlab = "Maintenance interval (cycles)",
+        ylab = "Average cost based on 1000 iterations")
+dev.off()
 
 
 
